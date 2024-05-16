@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Excel File</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .custom-file-upload {
+            display: inline-block;
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #004494;
+            color: white;
+            border-radius: 4px;
+            border: none;
+            margin-bottom: 10px;
+        }
+        .custom-file-upload:hover {
+            background-color: #004494;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        button {
+            background-color: #004494;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+        #downloadLink {
+            margin-top: 10px;
+        }
+        #downloadLink button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #downloadLink button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Excel העלה קובץ</h1>
+        <form id="uploadForm">
+            <label class="custom-file-upload">
+                <input type="file" name="file" required>
+                בחר קובץ
+            </label>
+            <button type="submit" class="custom-file-upload">העלה קובץ</button>
+        </form>
+        <div id="message"></div>
+        <div id="downloadLink"></div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const result = await response.json();
+            if (response.ok) {
+                document.getElementById('message').textContent = result.message;
+                const downloadButton = `<a href="${result.filePath}" download><button>הורד קובץ</button></a>`;
+                document.getElementById('downloadLink').innerHTML = downloadButton;
+            } else {
+                document.getElementById('message').textContent = 'Error processing file';
+            }
+        };
+    </script>
+</body>
+</html>
+
