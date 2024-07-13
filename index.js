@@ -4,50 +4,61 @@ const xmlbuilder = require('xmlbuilder');
 const { transliterate } = require('hebrew-transliteration');
 
 const readExcelFile = (filePath) => {
+    console.log(`Reading Excel file from ${filePath}`);
     const workbook = xlsx.readFile(filePath, { type: 'file' });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
-    return xlsx.utils.sheet_to_json(worksheet);
+    const jsonData = xlsx.utils.sheet_to_json(worksheet);
+    console.log(`Read ${jsonData.length} rows from Excel file`);
+    return jsonData;
 };
 
 const readCityNamesFromExcel = (filePath) => {
+    console.log(`Reading city names from Excel file ${filePath}`);
     const workbook = xlsx.readFile(filePath);
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
-    return xlsx.utils.sheet_to_json(worksheet, { header: 1 })
+    const cityNames = xlsx.utils.sheet_to_json(worksheet, { header: 1 })
         .map(row => row[0])
         .filter((cityName, index) => index > 0 && cityName);
+    console.log(`Extracted ${cityNames.length} city names`);
+    return cityNames;
 };
 
-
 const cleanText = (text) => {
+    console.log(`Cleaning text: ${text}`);
     if (!text) return null;
     return text.replace(/[\r\n]/g, '').trim();
 };
 
 const getCityName = (text, cityNames) => {
+    console.log(`Getting city name from text: ${text}`);
     if (!text) return null;
     text = text.replace(/[\r\n]/g, '').trim();
 
     for (const cityName of cityNames) {
         if (text.includes(cityName)) {
+            console.log(`Found city name: ${cityName}`);
             return cityName;
         }
     }
+    console.log(`No city name found in text: ${text}`);
     return null;
 };
 
 const extractHouseNumber = (text) => {
+    console.log(`Extracting house number from text: ${text}`);
     if (typeof text === 'string') {
         const matches = text.match(/\d+/);
-        return matches ? matches[0] : "";
+        const houseNumber = matches ? matches[0] : "";
+        console.log(`Extracted house number: ${houseNumber}`);
+        return houseNumber;
     }
     return "";
 };
 
-
-
 const convertToXML = (jsonData, cityNames) => {
+    console.log(`Converting JSON data to XML`);
     const root = xmlbuilder.create('root');
     jsonData.forEach((row) => {
         const student = root.ele('Student');
@@ -59,15 +70,20 @@ const convertToXML = (jsonData, cityNames) => {
         student.ele('JobPlace', cleanText(row['סטודנט: מקום עבודה']) || "");
         student.ele('Email', row['סטודנט: דוא"ל'] || "");
     });
-    return root.end({ pretty: true });
+    const xmlData = root.end({ pretty: true });
+    console.log(`Converted JSON data to XML successfully`);
+    return xmlData;
 };
 
 const saveXMLToFile = (xmlData, outputFilePath) => {
+    console.log(`Saving XML data to file ${outputFilePath}`);
     fs.writeFileSync(outputFilePath, xmlData);
+    console.log(`XML data saved to file ${outputFilePath}`);
 };
 
 const getNextFileNumber = () => {
     const counterFilePath = 'counter.txt';
+    console.log(`Getting next file number from ${counterFilePath}`);
     let number = 1;
 
     if (fs.existsSync(counterFilePath)) {
@@ -75,10 +91,12 @@ const getNextFileNumber = () => {
     }
 
     fs.writeFileSync(counterFilePath, (number + 1).toString());
+    console.log(`Next file number is ${number}`);
     return number;
 };
 
 const main = (inputFilePath) => {
+    console.log(`Main function started with input file path: ${inputFilePath}`);
     const cityNamesFilePath = '/Users/Maor.Levinshtein/Documents/Barkan-scripts/settlements/settlements.xlsx';
 
     const fileNumber = getNextFileNumber();
@@ -95,4 +113,3 @@ const main = (inputFilePath) => {
 };
 
 module.exports = { main };
-// main();
