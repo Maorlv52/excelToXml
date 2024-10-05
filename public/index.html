@@ -99,9 +99,33 @@
         }
 
         /* Submit Button Style */
-        button {
-            display: inline-block;
+        #uploadButton {
+            display: none; /* Initially hidden */
             background-color: #28A745;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        #uploadButton:hover {
+            background-color: #218838;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Download Button Style */
+        #downloadContainer {
+            display: none; /* Initially hidden */
+            margin-top: 20px;
+        }
+
+        #downloadButton {
+            background-color: #FFA500;
             color: white;
             border: none;
             padding: 14px 28px;
@@ -111,9 +135,9 @@
             transition: all 0.3s ease;
         }
 
-        button:hover {
-            background-color: #218838;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        #downloadButton:hover {
+            background-color: #FF8C00;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
         }
 
@@ -122,21 +146,6 @@
             margin-top: 20px;
             font-size: 16px;
             color: #333;
-        }
-
-        #downloadLink {
-            margin-top: 20px;
-        }
-
-        #downloadLink button {
-            background-color: #FFA500;
-            transition: all 0.3s ease;
-        }
-
-        #downloadLink button:hover {
-            background-color: #FF8C00;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
         }
 
         /* Loader Animation */
@@ -170,23 +179,40 @@
 <div class="container">
     <h1>Excel העלה קובץ</h1>
     <form id="uploadForm">
-        <label class="custom-file-upload">
-            <input type="file" name="file" required id="fileInput">
+        <!-- File Selection Button -->
+        <label class="custom-file-upload" id="selectFileLabel">
+            <input type="file" name="file" required id="fileInput" accept=".xlsx, .xls">
             בחר קובץ
         </label>
         <p id="fileName" class="file-info hidden">No file selected</p>
 
-        <button type="submit">העלה קובץ</button>
+        <!-- Upload Button -->
+        <button type="submit" id="uploadButton">העלה קובץ</button>
     </form>
+
+    <!-- Message Display -->
     <div id="message"></div>
-    <div id="downloadLink"></div>
-    <div class="loader" id="loader"></div> <!-- Loader for upload process -->
+
+    <!-- Download Button -->
+    <div id="downloadContainer">
+        <a href="#" id="downloadLink" download>
+            <button id="downloadButton">הורד קובץ</button>
+        </a>
+    </div>
+
+    <!-- Loader for upload process -->
+    <div class="loader" id="loader"></div>
 </div>
 
 <script>
     const fileInput = document.getElementById('fileInput');
     const fileNameDisplay = document.getElementById('fileName');
     const loader = document.getElementById('loader');
+    const selectFileLabel = document.getElementById('selectFileLabel');
+    const uploadButton = document.getElementById('uploadButton');
+    const downloadContainer = document.getElementById('downloadContainer');
+    const downloadLink = document.getElementById('downloadLink');
+    const message = document.getElementById('message');
 
     // Update the UI when a file is selected
     fileInput.addEventListener('change', function() {
@@ -194,36 +220,61 @@
         if (selectedFile) {
             fileNameDisplay.textContent = `${selectedFile.name} :קובץ שנבחר `;
             fileNameDisplay.classList.remove('hidden');
+            // Hide the select file button and show the upload button
+            selectFileLabel.style.display = 'none';
+            uploadButton.style.display = 'inline-block';
+            // Hide previous messages and download link if any
+            message.textContent = '';
+            downloadContainer.style.display = 'none';
         } else {
             fileNameDisplay.textContent = 'No file selected';
             fileNameDisplay.classList.add('hidden');
+            // Show the select file button and hide the upload button
+            selectFileLabel.style.display = 'inline-block';
+            uploadButton.style.display = 'none';
         }
     });
 
     document.getElementById('uploadForm').onsubmit = async function(event) {
         event.preventDefault();
-        const formData = new FormData(this);
-        loader.style.display = 'block';
 
-        const response = await fetch('/upload', {
-            method: 'POST',
-            body: formData,
-        }).catch(err => {
-            console.error('Fetch error:', err);
-            document.getElementById('message').textContent = 'Error connecting to server.';
-            loader.style.display = 'none';
-        });
-
-        if (response && response.ok) {
-            const result = await response.json();
-            document.getElementById('message').textContent = result.message;
-            const downloadButton = `<a href="${result.filePath}" download><button>הורד קובץ</button></a>`;
-            document.getElementById('downloadLink').innerHTML = downloadButton;
-        } else {
-            document.getElementById('message').textContent = 'Error processing file';
+        // Ensure a file is selected
+        if (!fileInput.files.length) {
+            message.textContent = 'Please select a file to upload.';
+            return;
         }
 
-        loader.style.display = 'none';
+        const formData = new FormData(this);
+        loader.style.display = 'block';
+        message.textContent = '';
+        downloadContainer.style.display = 'none';
+
+        try {
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                message.textContent = result.message || 'File uploaded successfully.';
+
+                // Set the download link
+                downloadLink.href = result.filePath;
+
+                // Hide the upload button and show the download button
+                uploadButton.style.display = 'none';
+                downloadContainer.style.display = 'block';
+            } else {
+                const errorResult = await response.json();
+                message.textContent = errorResult.message || 'Error processing file.';
+            }
+        } catch (err) {
+            console.error('Fetch error:', err);
+            message.textContent = 'Error connecting to server.';
+        } finally {
+            loader.style.display = 'none';
+        }
     };
 </script>
 </body>
