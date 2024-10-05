@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "node --inspect index.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +16,8 @@
     "multer": "^1.4.5-lts.1",
     "xlsx": "^0.18.5",
     "xmlbuilder": "^15.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }

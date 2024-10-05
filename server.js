@@ -17,10 +17,12 @@ app.post('/upload', upload.single('file'), (req, res) => {
         return res.status(400).send('No file uploaded.');
     }
     try {
-        console.log(`Processing file: ${req.file.path}`);
-        const xmlFilePath = main(req.file.path);
-        const downloadPath = path.basename(xmlFilePath);
-        console.log(`File processed successfully. XML file path: ${xmlFilePath}`);
+        console.log(req.file); // Log the file to see if it's being received
+        if (!req.file) {
+            return res.status(400).send('No file uploaded.');
+        }
+        const xmlFilePath = main(req.file.path);  // Get the path of the XML file
+        const downloadPath = path.basename(xmlFilePath); // Extract filename for safe routing
         res.json({ message: 'הקובץ נטען בהצלחה', filePath: `/download/${downloadPath}` });
     } catch (error) {
         console.error('Error processing file:', error);

@@ -96,11 +96,20 @@
     <script>
         document.getElementById('uploadForm').onsubmit = async function(event) {
             event.preventDefault();
+            const fileInput = this.querySelector('input[type="file"]');
+            if (!fileInput.files.length) {
+                document.getElementById('message').textContent = 'Please select a file.';
+                return;
+            }
             const formData = new FormData(this);
             const response = await fetch('/upload', {
                 method: 'POST',
                 body: formData,
+            }).catch(err => {
+                console.error('Fetch error:', err);
+                document.getElementById('message').textContent = 'Error connecting to server.';
             });
+
             const result = await response.json();
             if (response.ok) {
                 document.getElementById('message').textContent = result.message;
