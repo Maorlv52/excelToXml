@@ -5,81 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Excel File</title>
     <style>
-        /* Main Styles */
+        /* Body and Background */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #6dd5ed, #2193b0);
-            background-size: cover;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1E90FF, #00BFFF);
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: #444;
+            color: #333;
             overflow: hidden;
         }
 
-        /* Positioning the logo */
+        /* Positioning the logo with dark background */
         .logo-container {
             position: absolute;
             top: 20px;
             right: 20px;
-            background-color: rgba(0, 0, 0, 0.4); /* Dark background behind logo */
-            padding: 10px; /* Add some padding around the logo */
-            border-radius: 10px; /* Round the corners for a smoother look */
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 10px;
         }
 
         .logo {
-            width: 100px;
+            width: 80px;
             height: auto;
             cursor: pointer;
         }
 
-        .logo:hover {
-            transform: scale(1.1); /* Slight hover effect */
-        }
-
         /* Container Style */
         .container {
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: #fff;
             padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 100%;
             max-width: 500px;
-            animation: fadeIn 1s ease-in-out;
+            animation: fadeIn 0.8s ease-in-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Header Style */
         h1 {
-            font-size: 32px;
-            color: #333;
+            font-size: 28px;
+            color: #222;
             margin-bottom: 30px;
-            font-weight: bold;
-            background: -webkit-linear-gradient(45deg, #2193b0, #6dd5ed);
+            font-weight: 600;
+            background: -webkit-linear-gradient(45deg, #00BFFF, #1E90FF);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
+        /* File Upload Button Style */
         .custom-file-upload {
             display: inline-block;
-            background-color: #4A90E2;
+            background-color: #1E90FF;
             color: white;
-            border-radius: 12px;
-            padding: 14px 25px;
-            font-size: 18px;
-            margin-bottom: 25px;
+            border-radius: 8px;
+            padding: 14px 28px;
+            margin-bottom: 20px;
+            font-size: 16px;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .custom-file-upload:hover {
-            background-color: #357ABD;
+            background-color: #4682B4;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             transform: translateY(-2px);
         }
 
@@ -87,10 +85,11 @@
             display: none;
         }
 
+        /* File Info Style */
         .file-info {
-            margin-top: 10px;
+            margin-top: 15px;
             font-size: 18px;
-            color: green;
+            color: #1E90FF;
             opacity: 1;
             transition: opacity 0.3s ease;
         }
@@ -99,23 +98,26 @@
             opacity: 0;
         }
 
+        /* Submit Button Style */
         button {
             display: inline-block;
-            background-color: #4CAF50;
+            background-color: #28A745;
             color: white;
             border: none;
-            padding: 14px 25px;
+            padding: 14px 28px;
             font-size: 18px;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #218838;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             transform: translateY(-2px);
         }
 
+        /* Message and Download Button Styles */
         #message {
             margin-top: 20px;
             font-size: 16px;
@@ -128,15 +130,19 @@
 
         #downloadLink button {
             background-color: #FFA500;
+            transition: all 0.3s ease;
         }
 
         #downloadLink button:hover {
             background-color: #FF8C00;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
 
+        /* Loader Animation */
         .loader {
             border: 5px solid #f3f3f3;
-            border-top: 5px solid #4A90E2;
+            border-top: 5px solid #1E90FF;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -149,16 +155,18 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
     </style>
 </head>
 <body>
+<!-- Logo with Link -->
 <div class="logo-container">
-    <!-- Wrap the logo inside an anchor tag -->
     <a href="https://www.icpd.co.il" target="_blank">
         <img src="lianLogo.png" alt="Lian Logo" class="logo">
     </a>
 </div>
 
+<!-- Main Upload Container -->
 <div class="container">
     <h1>Excel העלה קובץ</h1>
     <form id="uploadForm">
@@ -166,7 +174,7 @@
             <input type="file" name="file" required id="fileInput">
             בחר קובץ
         </label>
-        <p id="fileName" class="file-info hidden">לא נבחר קובץ</p>
+        <p id="fileName" class="file-info hidden">No file selected</p>
 
         <button type="submit">העלה קובץ</button>
     </form>
@@ -184,10 +192,10 @@
     fileInput.addEventListener('change', function() {
         const selectedFile = fileInput.files[0];
         if (selectedFile) {
-            fileNameDisplay.textContent = `קובץ שנבחר: ${selectedFile.name}`;
+            fileNameDisplay.textContent = `${selectedFile.name} :קובץ שנבחר `;
             fileNameDisplay.classList.remove('hidden');
         } else {
-            fileNameDisplay.textContent = 'לא נבחר קובץ';
+            fileNameDisplay.textContent = 'No file selected';
             fileNameDisplay.classList.add('hidden');
         }
     });
