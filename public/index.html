@@ -19,6 +19,26 @@
             overflow: hidden;
         }
 
+        /* Positioning the logo */
+        .logo-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.4); /* Dark background behind logo */
+            padding: 10px; /* Add some padding around the logo */
+            border-radius: 10px; /* Round the corners for a smoother look */
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+            cursor: pointer;
+        }
+
+        .logo:hover {
+            transform: scale(1.1); /* Slight hover effect */
+        }
+
         /* Container Style */
         .container {
             background-color: rgba(255, 255, 255, 0.9);
@@ -36,7 +56,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Header Styles */
         h1 {
             font-size: 32px;
             color: #333;
@@ -47,7 +66,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* File Upload Button Style */
         .custom-file-upload {
             display: inline-block;
             background-color: #4A90E2;
@@ -69,7 +87,6 @@
             display: none;
         }
 
-        /* File Info Style */
         .file-info {
             margin-top: 10px;
             font-size: 18px;
@@ -82,7 +99,6 @@
             opacity: 0;
         }
 
-        /* Submit Button Style */
         button {
             display: inline-block;
             background-color: #4CAF50;
@@ -100,7 +116,6 @@
             transform: translateY(-2px);
         }
 
-        /* Message and Download Button Styles */
         #message {
             margin-top: 20px;
             font-size: 16px;
@@ -119,7 +134,6 @@
             background-color: #FF8C00;
         }
 
-        /* Loader Animation */
         .loader {
             border: 5px solid #f3f3f3;
             border-top: 5px solid #4A90E2;
@@ -138,6 +152,13 @@
     </style>
 </head>
 <body>
+<div class="logo-container">
+    <!-- Wrap the logo inside an anchor tag -->
+    <a href="https://www.icpd.co.il" target="_blank">
+        <img src="lianLogo.png" alt="Lian Logo" class="logo">
+    </a>
+</div>
+
 <div class="container">
     <h1>Excel העלה קובץ</h1>
     <form id="uploadForm">
@@ -145,7 +166,7 @@
             <input type="file" name="file" required id="fileInput">
             בחר קובץ
         </label>
-        <p id="fileName" class="file-info hidden">לא נבחר קובץ</p> <!-- Improved file name display -->
+        <p id="fileName" class="file-info hidden">לא נבחר קובץ</p>
 
         <button type="submit">העלה קובץ</button>
     </form>
@@ -161,22 +182,19 @@
 
     // Update the UI when a file is selected
     fileInput.addEventListener('change', function() {
-        const selectedFile = fileInput.files[0]; // Get the selected file
+        const selectedFile = fileInput.files[0];
         if (selectedFile) {
-            fileNameDisplay.textContent = `קובץ שנבחר: ${selectedFile.name}`; // Update the text to show file name
+            fileNameDisplay.textContent = `קובץ שנבחר: ${selectedFile.name}`;
             fileNameDisplay.classList.remove('hidden');
         } else {
-            fileNameDisplay.textContent = 'לא נבחר קובץ'; // Reset if no file is selected
+            fileNameDisplay.textContent = 'לא נבחר קובץ';
             fileNameDisplay.classList.add('hidden');
         }
     });
 
     document.getElementById('uploadForm').onsubmit = async function(event) {
         event.preventDefault();
-
         const formData = new FormData(this);
-
-        // Display the loader during file upload
         loader.style.display = 'block';
 
         const response = await fetch('/upload', {
@@ -197,7 +215,6 @@
             document.getElementById('message').textContent = 'Error processing file';
         }
 
-        // Hide the loader after the request is complete
         loader.style.display = 'none';
     };
 </script>
