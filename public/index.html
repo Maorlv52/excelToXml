@@ -5,83 +5,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Excel File</title>
     <style>
-        /* Your existing styles */
+        /* Main Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
+            background: linear-gradient(135deg, #6dd5ed, #2193b0);
+            background-size: cover;
             margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            color: #444;
+            overflow: hidden;
         }
+
+        /* Container Style */
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
             text-align: center;
-            max-width: 400px;
             width: 100%;
+            max-width: 500px;
+            animation: fadeIn 1s ease-in-out;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header Styles */
         h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 32px;
             color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+            background: -webkit-linear-gradient(45deg, #2193b0, #6dd5ed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
+
+        /* File Upload Button Style */
         .custom-file-upload {
             display: inline-block;
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #004494;
+            background-color: #4A90E2;
             color: white;
-            border-radius: 4px;
-            border: none;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            padding: 14px 25px;
+            font-size: 18px;
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
+
         .custom-file-upload:hover {
-            background-color: #003577;
+            background-color: #357ABD;
+            transform: translateY(-2px);
         }
+
         input[type="file"] {
             display: none;
         }
+
+        /* File Info Style */
+        .file-info {
+            margin-top: 10px;
+            font-size: 18px;
+            color: green;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .file-info.hidden {
+            opacity: 0;
+        }
+
+        /* Submit Button Style */
         button {
-            background-color: #004494;
+            display: inline-block;
+            background-color: #4CAF50;
             color: white;
-            padding: 10px 20px;
             border: none;
-            border-radius: 4px;
+            padding: 14px 25px;
+            font-size: 18px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
+
         button:hover {
-            background-color: #003577;
+            background-color: #45a049;
+            transform: translateY(-2px);
         }
+
+        /* Message and Download Button Styles */
         #message {
             margin-top: 20px;
             font-size: 16px;
             color: #333;
         }
+
         #downloadLink {
-            margin-top: 10px;
+            margin-top: 20px;
         }
+
         #downloadLink button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
+            background-color: #FFA500;
         }
+
         #downloadLink button:hover {
-            background-color: #45a049;
+            background-color: #FF8C00;
         }
-        #fileName {
-            margin-top: 10px;
-            font-size: 16px;
-            color: green;
+
+        /* Loader Animation */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4A90E2;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -93,24 +145,29 @@
             <input type="file" name="file" required id="fileInput">
             בחר קובץ
         </label>
-        <p id="fileName">לא נבחר קובץ</p> <!-- Add this line to display the file name -->
-        <button type="submit" class="custom-file-upload">העלה קובץ</button>
+        <p id="fileName" class="file-info hidden">לא נבחר קובץ</p> <!-- Improved file name display -->
+
+        <button type="submit">העלה קובץ</button>
     </form>
     <div id="message"></div>
     <div id="downloadLink"></div>
+    <div class="loader" id="loader"></div> <!-- Loader for upload process -->
 </div>
 
 <script>
     const fileInput = document.getElementById('fileInput');
     const fileNameDisplay = document.getElementById('fileName');
+    const loader = document.getElementById('loader');
 
     // Update the UI when a file is selected
     fileInput.addEventListener('change', function() {
         const selectedFile = fileInput.files[0]; // Get the selected file
         if (selectedFile) {
             fileNameDisplay.textContent = `קובץ שנבחר: ${selectedFile.name}`; // Update the text to show file name
+            fileNameDisplay.classList.remove('hidden');
         } else {
             fileNameDisplay.textContent = 'לא נבחר קובץ'; // Reset if no file is selected
+            fileNameDisplay.classList.add('hidden');
         }
     });
 
@@ -118,15 +175,20 @@
         event.preventDefault();
 
         const formData = new FormData(this);
+
+        // Display the loader during file upload
+        loader.style.display = 'block';
+
         const response = await fetch('/upload', {
             method: 'POST',
             body: formData,
         }).catch(err => {
             console.error('Fetch error:', err);
             document.getElementById('message').textContent = 'Error connecting to server.';
+            loader.style.display = 'none';
         });
 
-        if (response.ok) {
+        if (response && response.ok) {
             const result = await response.json();
             document.getElementById('message').textContent = result.message;
             const downloadButton = `<a href="${result.filePath}" download><button>הורד קובץ</button></a>`;
@@ -134,6 +196,9 @@
         } else {
             document.getElementById('message').textContent = 'Error processing file';
         }
+
+        // Hide the loader after the request is complete
+        loader.style.display = 'none';
     };
 </script>
 </body>
