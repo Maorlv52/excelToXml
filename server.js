@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { main } = require('./index');  // Importing the main function from index.js
+const cors = require('cors');
 const app = express();
 const port = 3000;
 
@@ -9,6 +10,7 @@ const port = 3000;
 const upload = multer({ dest: 'uploads/' });
 
 app.use(express.static('public'));
+app.use(cors());
 
 app.post('/upload', upload.single('file'), (req, res) => {
     console.log('Received a file upload request.');

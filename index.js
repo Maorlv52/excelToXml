@@ -2,6 +2,8 @@ const fs = require('fs');
 const xlsx = require('xlsx');
 const xmlbuilder = require('xmlbuilder');
 const { transliterate } = require('hebrew-transliteration');
+const path = require('path');
+
 
 const readExcelFile = (filePath) => {
     console.log(`Reading Excel file from ${filePath}`);
@@ -95,16 +97,29 @@ const getNextFileNumber = () => {
     return number;
 };
 
+// const fs = require('fs');
+// const path = require('path');
+// const xlsx = require('xlsx');
+// const xmlbuilder = require('xmlbuilder');
+// const { transliterate } = require('hebrew-transliteration');
+
 const main = (inputFilePath) => {
-    console.log(`Main function started with input file path: ${inputFilePath}`);
-    const cityNamesFilePath = '/Users/Maor.Levinshtein/Documents/Barkan-scripts/settlements/settlements.xlsx';
+    // Check and create the results directory if it doesn't exist
+    const resultsDir = path.join(__dirname, 'results');
+    if (!fs.existsSync(resultsDir)) {
+        fs.mkdirSync(resultsDir);
+    }
 
+    // Define paths
+    const cityNamesFilePath = path.join(__dirname, 'settlements', 'settlements.xlsx');
     const fileNumber = getNextFileNumber();
-    const outputFilePath = `/Users/Maor.Levinshtein/Documents/Barkan-scripts/results/studentsXml${fileNumber}.xml`;
+    const outputFilePath = path.join(resultsDir, `studentsXml${fileNumber}.xml`);
 
+    // Read data from Excel
     const jsonData = readExcelFile(inputFilePath);
     const cityNames = readCityNamesFromExcel(cityNamesFilePath);
 
+    // Convert data to XML and save to file
     const xmlData = convertToXML(jsonData, cityNames);
     saveXMLToFile(xmlData, outputFilePath);
 
@@ -113,3 +128,4 @@ const main = (inputFilePath) => {
 };
 
 module.exports = { main };
+

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Excel File</title>
     <style>
+        /* Your existing styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f9;
@@ -40,7 +41,7 @@
             margin-bottom: 10px;
         }
         .custom-file-upload:hover {
-            background-color: #004494;
+            background-color: #003577;
         }
         input[type="file"] {
             display: none;
@@ -55,7 +56,7 @@
             font-size: 16px;
         }
         button:hover {
-            background-color: #004494;
+            background-color: #003577;
         }
         #message {
             margin-top: 20px;
@@ -77,49 +78,63 @@
         #downloadLink button:hover {
             background-color: #45a049;
         }
+        #fileName {
+            margin-top: 10px;
+            font-size: 16px;
+            color: green;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Excel העלה קובץ</h1>
-        <form id="uploadForm" enctype="multipart/form-data">
-            <label class="custom-file-upload">
-                <input type="file" id="fileInput" name="file" required>
-                בחר קובץ
-            </label>
-            <button type="button" id="uploadButton" class="custom-file-upload">העלה קובץ</button>
-        </form>
-        <div id="message"></div>
-        <div id="downloadLink"></div>
-    </div>
+<div class="container">
+    <h1>Excel העלה קובץ</h1>
+    <form id="uploadForm">
+        <label class="custom-file-upload">
+            <input type="file" name="file" required id="fileInput">
+            בחר קובץ
+        </label>
+        <p id="fileName">לא נבחר קובץ</p> <!-- Add this line to display the file name -->
+        <button type="submit" class="custom-file-upload">העלה קובץ</button>
+    </form>
+    <div id="message"></div>
+    <div id="downloadLink"></div>
+</div>
 
-    <script>
-        document.getElementById('uploadForm').onsubmit = async function(event) {
-            event.preventDefault();
-            const fileInput = this.querySelector('input[type="file"]');
-            if (!fileInput.files.length) {
-                document.getElementById('message').textContent = 'Please select a file.';
-                return;
-            }
-            const formData = new FormData(this);
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData,
-            }).catch(err => {
-                console.error('Fetch error:', err);
-                document.getElementById('message').textContent = 'Error connecting to server.';
-            });
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileNameDisplay = document.getElementById('fileName');
 
+    // Update the UI when a file is selected
+    fileInput.addEventListener('change', function() {
+        const selectedFile = fileInput.files[0]; // Get the selected file
+        if (selectedFile) {
+            fileNameDisplay.textContent = `קובץ שנבחר: ${selectedFile.name}`; // Update the text to show file name
+        } else {
+            fileNameDisplay.textContent = 'לא נבחר קובץ'; // Reset if no file is selected
+        }
+    });
+
+    document.getElementById('uploadForm').onsubmit = async function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData,
+        }).catch(err => {
+            console.error('Fetch error:', err);
+            document.getElementById('message').textContent = 'Error connecting to server.';
+        });
+
+        if (response.ok) {
             const result = await response.json();
-            if (response.ok) {
-                document.getElementById('message').textContent = result.message;
-                const downloadButton = `<a href="${result.filePath}" download><button>הורד קובץ</button></a>`;
-                document.getElementById('downloadLink').innerHTML = downloadButton;
-            } else {
-                document.getElementById('message').textContent = 'Error processing file';
-            }
-        };
-    </script>
+            document.getElementById('message').textContent = result.message;
+            const downloadButton = `<a href="${result.filePath}" download><button>הורד קובץ</button></a>`;
+            document.getElementById('downloadLink').innerHTML = downloadButton;
+        } else {
+            document.getElementById('message').textContent = 'Error processing file';
+        }
+    };
+</script>
 </body>
 </html>
-
